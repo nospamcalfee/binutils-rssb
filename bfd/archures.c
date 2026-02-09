@@ -574,6 +574,8 @@ DESCRIPTION
 .#define bfd_mach_amdgcn_gfx1100 0x041
 .#define bfd_mach_amdgcn_gfx1101 0x046
 .#define bfd_mach_amdgcn_gfx1102 0x047
+.  bfd_arch_rssb, (* OnDemand rssb *)
+#define bfd_mach_rssb 1
 .  bfd_arch_last
 .  };
 */
@@ -634,6 +636,7 @@ extern const bfd_arch_info_type bfd_arc_arch;
 extern const bfd_arch_info_type bfd_arm_arch;
 extern const bfd_arch_info_type bfd_avr_arch;
 extern const bfd_arch_info_type bfd_bfin_arch;
+extern const bfd_arch_info_type bfd_rssb_arch;
 extern const bfd_arch_info_type bfd_cr16_arch;
 extern const bfd_arch_info_type bfd_cris_arch;
 extern const bfd_arch_info_type bfd_crx_arch;
@@ -722,6 +725,7 @@ static const bfd_arch_info_type * const bfd_archures_list[] =
     &bfd_arm_arch,
     &bfd_avr_arch,
     &bfd_bfin_arch,
+    &bfd_rssb_arch,
     &bfd_cr16_arch,
     &bfd_cris_arch,
     &bfd_crx_arch,

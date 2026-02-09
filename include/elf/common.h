@@ -459,6 +459,7 @@
    architecture was derived.  */
 #define EM_CSKY_OLD		EM_MCORE
 
+#define EM_RSSB 0x4242
 /* See the above comment before you add a new EM_* value here.  */
 
 /* Values for e_version.  */

@@ -739,6 +739,7 @@ ALL_EMULATION_SOURCES = \
 	eelf32am33lin.c \
 	eelf32bfin.c \
 	eelf32bfinfd.c \
+	eelf32rssb.c \
 	eelf32cr16.c \
 	eelf32crx.c \
 	eelf32epiphany.c \

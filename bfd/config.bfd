@@ -185,6 +185,7 @@ arc*)		 targ_archs=bfd_arc_arch ;;
 arm*)		 targ_archs=bfd_arm_arch ;;
 amdgcn*)	 targ_archs=bfd_amdgcn_arch ;;
 bfin*)		 targ_archs=bfd_bfin_arch ;;
+rssb*)   targ_archs=bfd_rssb_arch ;;
 c30*)		 targ_archs=bfd_tic30_arch ;;
 c4x*)		 targ_archs=bfd_tic4x_arch ;;
 c54x*)		 targ_archs=bfd_tic54x_arch ;;
@@ -442,6 +443,11 @@ case "${targ}" in
   bfin-*-*)
     targ_defvec=bfin_elf32_vec
     targ_selvecs=bfin_elf32_fdpic_vec
+    targ_underscore=yes
+    ;;
+
+  rssb-*-elf*)
+    targ_defvec=rssb_elf32_vec
     targ_underscore=yes
     ;;
 

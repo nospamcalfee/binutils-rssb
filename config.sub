@@ -1401,6 +1401,7 @@ case $cpu-$vendor in
 			| rl78 \
 			| romp \
 			| rs6000 \
+			| rssb \
 			| rx \
 			| s390 \
 			| s390x \
