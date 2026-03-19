@@ -22,13 +22,10 @@
 
 #include "as.h"
 #include "bfd.h"
-
-const char md_shortopts[] = {};
-const struct option md_longopts[] = {};
-const size_t md_longopts_size = sizeof(md_longopts);
+#include "opcode/rssb.h"
 
 //comments
-const char comment_chars[] = "";
+const char comment_chars[] = "#";
 const char line_comment_chars[] = "//";
 const char line_separator_chars[] = ";";
 
@@ -36,6 +33,26 @@ const char line_separator_chars[] = ";";
 const char EXP_CHARS[] = "";
 const char FLT_CHARS[] = "";
 
+/* continue the horrible tradition of Global variables.  */
+
+/* Array to hold an instruction encoding.  */
+long output_opcode[2];
+
+/* Nonzero means a relocatable symbol.  */
+int relocatable;
+
+#ifdef OBJ_ELF
+/* Pre-defined "_GLOBAL_OFFSET_TABLE_"  */
+symbolS * GOT_symbol;
+#endif
+
+/* Current instruction we're assembling.  */
+const inst *instruction;
+
+/* Endianness. */
+extern int target_big_endian;
+
+//end of horrible globals
 /* This table describes all the machine specific pseudo-ops
    the assembler has to support.  The fields are:
    *** Pseudo-op name without dot.
@@ -44,33 +61,96 @@ const char FLT_CHARS[] = "";
 
 const pseudo_typeS md_pseudo_table[] =
 {
-  /* In bssd machine, align is in bytes (not a ptwo boundary).  */
+  /* In rssd machine, align is in bytes (not a ptwo boundary).  */
   {
     (char *) 0,
     (void(*)(int))0, 0
   }
 };
-/* Process machine-dependent command line options.  Called once for
-   each option on the command line that the machine-independent part of
-   GAS does not understand.  */
 
-int
-md_parse_option (int c ATTRIBUTE_UNUSED, const char *arg ATTRIBUTE_UNUSED)
-{
-  return 0;
+/**
+ * @brief Prints a hexadecimal and character dump of a memory block.
+ *
+ * @param data A pointer to the memory block.
+ * @param size The number of bytes to print.
+ */
+static void dump_bytes(const void* data, size_t size) {
+    const unsigned char* byte = (const unsigned char*)data; // Treat memory as unsigned bytes
+    size_t i, j;
+
+    for (i = 0; i < size; i += 16) {
+        // Print the memory address offset
+        printf("%08lX | ", (unsigned long)i);
+
+        // Print the hex values for 16 bytes (or fewer, if at the end)
+        for (j = 0; j < 16; j++) {
+            if (i + j < size) {
+                printf("%02X ", byte[i + j]);
+            } else {
+                printf("   "); // Print spaces for alignment if less than 16 bytes
+            }
+            if (j == 7) {
+                printf("- "); // Add a separator in the middle
+            }
+        }
+
+        // // Print the ASCII representation
+        // printf("| ");
+        // for (j = 0; j < 16; j++) {
+        //     if (i + j < size) {
+        //         // Use isprint() to check if the character is printable, otherwise print a dot
+        //         printf("%c", isprint(byte[i + j]) ? byte[i + j] : '.');
+        //     }
+        // }
+        printf("\n");
+    }
 }
 
 /* Machine-dependent usage-output.  */
 
+// void
+// md_operand (void *) {
+// }
 void
-md_show_usage (FILE *stream ATTRIBUTE_UNUSED)
+md_operand (struct expressionS *op ATTRIBUTE_UNUSED)
 {
-  return;
+    printf("%s\n",__func__);
 }
 
 void md_begin(void) {
+      printf("%s\n",__func__);
   return;
 }
+void
+md_number_to_chars (char *ptr, valueT val, int nbytes)
+{
+  if (target_big_endian)
+    number_to_chars_bigendian (ptr, val, nbytes);
+  else
+    number_to_chars_littleendian (ptr, val, nbytes);
+}
+
+static int
+emit_rssb_operand (expressionS *expr)
+{
+  char *frag = frag_more (RSSB_OPERAND_SIZE);
+
+    printf("%s\n",__func__);
+
+  if (expr->X_op == O_symbol) {
+      fix_new_exp (frag_now, frag - frag_now->fr_literal, 4, expr, 0,
+                   BFD_RELOC_32);
+  } else if (expr->X_op != O_constant) {
+      as_bad ("%s argument must be a symbol or constant", __func__);
+      return -1;
+    }
+
+  md_number_to_chars (frag, expr->X_add_number, RSSB_OPERAND_SIZE);
+    dump_bytes(frag, RSSB_OPERAND_SIZE);
+
+  return 0; /* Return 0 on success.  */
+}
+
 
 /* This is the guts of the machine-dependent assembler.  OP points to a
    machine dependent instruction.  This function is supposed to emit
@@ -79,29 +159,48 @@ void md_begin(void) {
 void
 md_assemble (char *op)
 {
+    // ins rssb_ins;
+    expressionS addr_field;
+
+    printf("%s Inst string: %s\n",__func__ , op);
+    char *s = strcasestr(op, "rssb");
+    if (!s) {
+        //opcode is optional!
+        s = op;
+    } else {
+        s += 4; //skip the op-code
+    }
+
+    input_line_pointer = s;
+
+    printf("%s symb string: %s\n",__func__ , s);
+    expression(&addr_field);
+    emit_rssb_operand( &addr_field);
     return;
 }
 
 symbolS *
 md_undefined_symbol (char *name)
 {
-  // if (*name == '_' && *(name + 1) == 'G'
-  //     && strcmp (name, "_GLOBAL_OFFSET_TABLE_") == 0)
-  //   {
-  //     if (!GOT_symbol)
-  // {
-  //   if (symbol_find (name))
-  //     as_bad (_("GOT already in symbol table"));
-  //   GOT_symbol = symbol_new (name, undefined_section,
-  //          &zero_address_frag, 0);
-  // }
-  //     return GOT_symbol;
-  //   }
+   printf("%s\n",__func__);
+  if (*name == '_' && *(name + 1) == 'G'
+      && strcmp (name, "_GLOBAL_OFFSET_TABLE_") == 0)
+    {
+      if (!GOT_symbol)
+  {
+    if (symbol_find (name))
+      as_bad (_("GOT already in symbol table"));
+    GOT_symbol = symbol_new (name, undefined_section,
+           &zero_address_frag, 0);
+  }
+      return GOT_symbol;
+    }
   return 0;
 }
 const char *
-md_atof (int type, char *litP, int *sizeP)
+md_atof (int type ATTRIBUTE_UNUSED, char *litP ATTRIBUTE_UNUSED, int *sizeP ATTRIBUTE_UNUSED)
 {
+  printf("%s\n",__func__);
   return 0; //ieee_md_atof (type, litP, sizeP, target_big_endian);
 }
 
@@ -110,18 +209,19 @@ md_atof (int type, char *litP, int *sizeP)
 valueT
 md_section_align (segT seg, valueT val)
 {
-  // /* Round .text section to a multiple of 2.  */
-  // if (seg == text_section)
-  //   return (val + 1) & ~1;
-  // return val;
-  return 0;
+  printf("%s\n",__func__);
+  /* Round .text section to a multiple of 2.  */
+  if (seg == text_section)
+    return (val + 1) & ~1;
+  return val;
 }
 
 void
 md_convert_frag (bfd *abfd ATTRIBUTE_UNUSED,
      asection *sec ATTRIBUTE_UNUSED,
-     fragS *fragP)
+     fragS *fragP ATTRIBUTE_UNUSED)
 {
+  printf("%s\n",__func__);
   as_fatal(_("unexpected call"));
     return;
 }
@@ -139,6 +239,7 @@ md_convert_frag (bfd *abfd ATTRIBUTE_UNUSED,
 int
 rssb_force_relocation (fixS *fix)
 {
+  printf("%s\n",__func__);
   if (generic_force_reloc (fix) || 0 /*SWITCH_TABLE (fix)*/)
     return 1;
 
@@ -146,36 +247,49 @@ rssb_force_relocation (fixS *fix)
 }
 
 void
-md_apply_fix (fixS *fixP, valueT *valP, segT seg)
+md_apply_fix (fixS *fixP ATTRIBUTE_UNUSED, valueT *valP ATTRIBUTE_UNUSED, segT seg ATTRIBUTE_UNUSED)
 {
+  printf("%s\n",__func__);
   return;
 }
 
 /* Generate a relocation entry for a fixup.  */
 
 arelent *
-tc_gen_reloc (asection *section ATTRIBUTE_UNUSED, fixS * fixP)
+tc_gen_reloc (asection *section ATTRIBUTE_UNUSED, fixS * fixp)
 {
-  return 0;
+  printf("%s\n",__func__);
+  arelent *reloc = XNEW (arelent);
+  reloc->sym_ptr_ptr = XNEW (asymbol *);
+  *reloc->sym_ptr_ptr = symbol_get_bfdsym (fixp->fx_addsy);
+
+  reloc->address = fixp->fx_frag->fr_address + fixp->fx_where;
+  reloc->howto = bfd_reloc_type_lookup (stdoutput, fixp->fx_r_type);
+  reloc->addend = fixp->fx_offset;
+
+  return reloc;
 }
 
 /* The location from which a PC relative jump should be calculated,
    given a PC relative reloc.  */
 
 long
-md_pcrel_from (fixS *fixp)
+md_pcrel_from (fixS *fixp ATTRIBUTE_UNUSED)
 {
+  printf("%s\n",__func__);
   as_fatal(_("unexpected call"));
   return 0; //fixp->fx_frag->fr_address + fixp->fx_where;
 }
 
-int md_estimate_size_before_relax(fragS *fragp, asection *seg) {
+int md_estimate_size_before_relax(fragS *fragp ATTRIBUTE_UNUSED, asection *seg ATTRIBUTE_UNUSED) {
+  printf("%s\n",__func__);
   as_fatal(_("unexpected call"));
   return 0;
 }
 long
 md_pcrel_from_section (fixS *fixP, segT sec)
 {
+  printf("%s\n",__func__);
   if (fixP->fx_addsy != NULL
       && (!S_IS_DEFINED (fixP->fx_addsy)
       || S_GET_SEGMENT (fixP->fx_addsy) != sec))
@@ -246,4 +360,50 @@ rssb_fix_adjustable (fixS *fixP)
     default:
       return 1;
     }
+}
+/* Options */
+
+const char md_shortopts[] = "";
+
+enum options
+{
+  OPTION_EB = OPTION_MD_BASE,
+  OPTION_EL
+};
+
+const struct option md_longopts[] = { { "EB", no_argument, NULL, OPTION_EB },
+                                { "EL", no_argument, NULL, OPTION_EL },
+                                { NULL, no_argument, NULL, 0 } };
+
+const size_t md_longopts_size = sizeof (md_longopts);
+// const struct option md_longopts[] =
+// {
+//   {NULL, no_argument, NULL, 0}
+// };
+// const size_t md_longopts_size = sizeof (md_longopts);
+
+int
+md_parse_option (int c, const char *arg ATTRIBUTE_UNUSED)
+{
+    printf("%s\n",__func__);
+  switch (c)
+    {
+    case OPTION_EB:
+      target_big_endian = 1;
+      break;
+    case OPTION_EL:
+      target_big_endian = 0;
+      break;
+    default:
+      return 0;
+    }
+  return 0; //default le
+}
+
+void
+md_show_usage (FILE *stream)
+{
+  fprintf (stream, _ ("\
+  -EB                     assemble for a big endian system\n\
+  -EL                     assemble for a little endian system (default)\n"));
 }

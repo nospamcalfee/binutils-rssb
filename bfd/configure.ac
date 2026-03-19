@@ -598,6 +598,7 @@ do
     rs6000_xcoff64_vec)		 tb="$tb coff64-rs6000.lo aix5ppc-core.lo $xcoff"; target_size=64 ;;
     rs6000_xcoff64_aix_vec)	 tb="$tb coff64-rs6000.lo aix5ppc-core.lo $xcoff"; target_size=64 ;;
     rs6000_xcoff_vec)		 tb="$tb coff-rs6000.lo $xcoff" ;;
+    rssb_elf32_le_vec)     tb="$tb elf32-rssb.lo elf32.lo $elf" ;;
     rx_elf32_be_vec)		 tb="$tb elf32-rx.lo elf32.lo $elf" ;;
     rx_elf32_be_ns_vec)		 tb="$tb elf32-rx.lo elf32.lo $elf" ;;
     rx_elf32_le_vec)		 tb="$tb elf32-rx.lo elf32.lo $elf" ;;

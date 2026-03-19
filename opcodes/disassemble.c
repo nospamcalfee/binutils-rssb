@@ -81,6 +81,7 @@
 #define ARCH_powerpc
 #define ARCH_pru
 #define ARCH_rs6000
+#define ARCH_rssb
 #define ARCH_rl78
 #define ARCH_rx
 #define ARCH_s12z
@@ -367,6 +368,9 @@ disassembler (enum bfd_architecture a,
 #endif
 #ifdef ARCH_rs6000
     case bfd_arch_rs6000:
+#endif
+#ifdef ARCH_rssb
+    case bfd_arch_rssb:
 #endif
 #if defined ARCH_powerpc || defined ARCH_rs6000
       if (big)

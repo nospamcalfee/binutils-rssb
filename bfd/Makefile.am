@@ -153,6 +153,7 @@ ALL_MACHINES = \
 	cpu-riscv.lo \
 	cpu-rl78.lo \
 	cpu-rs6000.lo \
+	cpu-rssb.lo \
 	cpu-rx.lo \
 	cpu-s12z.lo \
 	cpu-s390.lo \

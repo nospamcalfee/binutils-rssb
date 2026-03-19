@@ -25,6 +25,8 @@
 
 #define TARGET_BYTES_BIG_ENDIAN 0
 
+#define GLOBAL_OFFSET_TABLE_NAME "_GLOBAL_OFFSET_TABLE_"
+
 #define TARGET_ARCH		bfd_arch_rssb
 
 /*
@@ -41,9 +43,6 @@
 #define WORKING_DOT_WORD
 
 extern bool rssb_start_label (char *);
-
-#define md_number_to_chars	number_to_chars_littleendian
-// #define md_convert_frag(b,s,f)	as_fatal(_("rssb convert_frag\n"))
 
 /* Allow for [, ], etc.  */
 #define LEX_BR (LEX_BEGIN_NAME | LEX_END_NAME)
@@ -82,8 +81,6 @@ extern unsigned int rssb_anomaly_checks;
 /* Anomaly checking */
 #define AC_05000074 0x00000001
 #define ENABLE_AC_05000074 (rssb_anomaly_checks & AC_05000074)
-
-#define md_operand(x)
 
 #endif
 /* end of tc-rssb.h */

@@ -712,7 +712,6 @@ extern const bfd_target arm_pei_wince_le_vec;
 extern const bfd_target avr_elf32_vec;
 extern const bfd_target bfin_elf32_vec;
 extern const bfd_target bfin_elf32_fdpic_vec;
-extern const bfd_target rssb_elf32_vec;
 extern const bfd_target cr16_elf32_vec;
 extern const bfd_target cris_aout_vec;
 extern const bfd_target cris_elf32_vec;
@@ -864,6 +863,7 @@ extern const bfd_target rl78_elf32_vec;
 extern const bfd_target rs6000_xcoff64_vec;
 extern const bfd_target rs6000_xcoff64_aix_vec;
 extern const bfd_target rs6000_xcoff_vec;
+extern const bfd_target rssb_elf32_vec;
 extern const bfd_target rx_elf32_be_vec;
 extern const bfd_target rx_elf32_be_ns_vec;
 extern const bfd_target rx_elf32_le_vec;
@@ -1041,8 +1041,6 @@ static const bfd_target * const _bfd_target_vector[] =
 
 	&bfin_elf32_vec,
 	&bfin_elf32_fdpic_vec,
-
-	&rssb_elf32_vec,
 
 	&cr16_elf32_vec,
 
@@ -1265,6 +1263,8 @@ static const bfd_target * const _bfd_target_vector[] =
 	&rs6000_xcoff64_aix_vec,
 #endif
 	&rs6000_xcoff_vec,
+
+	&rssb_elf32_vec,
 
 	&rx_elf32_be_vec,
 	&rx_elf32_be_ns_vec,
