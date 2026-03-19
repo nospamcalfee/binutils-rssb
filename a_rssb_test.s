@@ -5,7 +5,8 @@
     rssb \p1
 .endm
 	.data
-fred:	.skip 4
+fred:	.long 0x444444
+	.skip 4
 xtest: .long 0xfedcba98
 	.text
 _start:

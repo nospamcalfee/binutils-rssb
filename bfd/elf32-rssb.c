@@ -45,7 +45,7 @@ static reloc_howto_type rssb_elf_howto_table[] =
          false),                 /* pcrel_offset */
 
   HOWTO (R_RSSB_32,            /* type */
-         2,                      /* rightshift by 2 to divide the address by 4 */
+         0,                      /* rightshift by 2 to divide the address by 4 */
          2,                      /* size (0 = byte, 1 = short, 2 = long) */
          32,                     /* bitsize */
          false,                  /* pc_relative */
