@@ -49,24 +49,24 @@
 #include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdint.h>
 
 /*
  * Memory mapped registers.
  */
 enum {
     MEM_PC,     /* program counter  */
-    MEM_ACC,    /* accumulator      */
-    MEM_ZERO,   /* zero register    */
-    MEM_IN,     /* input port       */
-    MEM_OUT,    /* output port      */
-    MEM_START   /* start of memory  */
+    MEM_ACC=4,    /* accumulator      */
+    MEM_ZERO=8,   /* zero register    */
+    MEM_IN=0xc,     /* input port       */
+    MEM_OUT=0x10,    /* output port      */
 };
 
 #define MEM_SIZE    (10*1024)
 #define LINE_SIZE   80
 
-int memory[MEM_SIZE];   /* the memory space of the machine  */
-int tracing = 0;        /* trace machine execution?         */
+uint32_t memory[MEM_SIZE];   /* the memory space of the machine  */
+int tracing = 1;        /* trace machine execution?         */
 
     void
 trace( char *str, ... )
@@ -120,49 +120,63 @@ load_program( char *fname )
 				fprintf( stderr, "%s", buf );
             continue;
         }
-        memory[loc] = strtol( buf, NULL, 10 );
+        memory[loc] = strtol( buf, NULL, 16 );
     }
 
     if( fname )
         fclose( f );
 }
-
-    void
-execute( void )
+#define PC_STEP_SIZE 4
+uint8_t *address(void * mem, uint32_t offs) {
+    err_if(offs > MEM_SIZE, "address (%x) too big", offs);
+    uint8_t *memo = mem;
+    return memo + offs;
+}
+//function to process address and return one memory word
+//for now offset is a byte address as required by binutils
+uint32_t readmem(uint32_t offs) {
+    return memory[offs>>2];
+}//function to process address and write val to memory word
+uint32_t writemem(uint32_t offs, uint32_t val) {
+    memory[offs>>2] = val;
+}
+void execute( void )
 {
     int op;     /* the current operand pointer      */
     int pc;     /* the current instruction pointer  */
     int skip;   /* skip the next instruction?       */
 
-    trace( "Start at %4.4d\n\n", memory[MEM_PC] );
-    while( (pc = memory[MEM_PC]) >= MEM_START ) {
-        ++memory[MEM_PC];
-        trace( "%4.4d: ", pc );
+    trace( "Start at %4.4x\n\n", readmem(MEM_PC) );
+    while( (pc = readmem(MEM_PC)) && pc <= MEM_SIZE ) {
+        writemem(MEM_PC, pc + PC_STEP_SIZE); //incr, mempc, use temp pc
+        trace( "%4.4x: ", pc * PC_STEP_SIZE);
         err_if( pc >= MEM_SIZE || pc < 0, "%d: instruction out of range", pc );
-        switch( op = memory[pc] ) {
+        switch( op = readmem(pc) ) {
             case MEM_ZERO:
-                memory[MEM_ZERO] = 0;
+                writemem(MEM_ZERO, 0);
                 break;
             case MEM_IN:
-                memory[MEM_IN] = getchar();
+                writemem(MEM_IN, getchar());
                 break;
             case MEM_OUT:
-                memory[MEM_OUT] = 2 * memory[MEM_ACC];
-                putchar( memory[MEM_ACC] );
+                //fixme what does the 2* mean?
+                writemem(MEM_OUT, 2 * readmem(MEM_ACC));
+                putchar( readmem(MEM_ACC) );
                 break;
             default:
                 err_if( op >= MEM_SIZE || op < 0,
                         "%d: operand out of range", pc );
                 break;
         }
-        trace( "%+4.4d => %+4.4d - %+4.4d = ",
-               op, memory[op], memory[MEM_ACC] );
-        skip = (unsigned) memory[op] < (unsigned) memory[MEM_ACC];
-        memory[op] -= memory[MEM_ACC];
-        memory[MEM_ACC] = memory[op];
-        trace( "%+4.4d\n", memory[MEM_ACC] );
-        if( skip ) {
-            ++memory[MEM_PC];
+        trace( "%+4.4x => %+4.4x - (acc)%+4.4x = ",
+               op, readmem(op), readmem(MEM_ACC) );
+        skip = readmem(op) < readmem(MEM_ACC);
+        writemem(op, readmem(op) - readmem(MEM_ACC));
+        writemem(MEM_ACC, readmem(op));
+        trace( "%+4.4x\n", readmem(MEM_ACC) );
+        if( skip && op) {
+            //for now dont skip when pc is affected
+            memory[MEM_PC] += PC_STEP_SIZE;
             trace( "skip\n" );
         }
     }

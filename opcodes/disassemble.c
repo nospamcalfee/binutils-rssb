@@ -371,6 +371,8 @@ disassembler (enum bfd_architecture a,
 #endif
 #ifdef ARCH_rssb
     case bfd_arch_rssb:
+        disassemble = print_insn_rssb;
+        break;
 #endif
 #if defined ARCH_powerpc || defined ARCH_rs6000
       if (big)

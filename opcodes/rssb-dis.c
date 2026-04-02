@@ -1,27 +1,51 @@
-/* Disassembler code for CR16.
-   Copyright (C) 2007-2025 Free Software Foundation, Inc.
-   Contributed by M R Swami Reddy (MR.Swami.Reddy@nsc.com).
+/* Disassemble rssb.
+   Copyright (C) 2021 Free Software Foundation, Inc.
+   Contributed by Joe Legg.
 
-   This file is part of GAS, GDB and the GNU binutils.
+   This file is part of the GNU opcodes library.
 
-   This program is free software; you can redistribute it and/or modify it
-   under the terms of the GNU General Public License as published by the
-   Free Software Foundation; either version 3, or (at your option)
+   This library is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3, or (at your option)
    any later version.
 
-   This program is distributed in the hope that it will be useful, but WITHOUT
-   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-   FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-   more details.
+   It is distributed in the hope that it will be useful, but WITHOUT
+   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+   or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
+   License for more details.
 
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software Foundation,
-   Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.  */
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 51 Franklin Street - Fifth Floor, Boston,
+   MA 02110-1301, USA.  */
 
 #include "sysdep.h"
 #include "disassemble.h"
-#include "opcode/cr16.h"
-#include "libiberty.h"
+#include "bfd.h"
+#include "opcode/rssb.h"
 
-/* String to print when opcode was not matched.  */
-#define ILLEGAL  "illegal"
+int
+print_insn_rssb (bfd_vma addr, struct disassemble_info *info)
+{
+  /* Buffer to read the instruction into.  */
+  bfd_byte insn_buf[RSSB_INSN_SIZE];
+
+  int err = (*info->read_memory_func) (addr, insn_buf, RSSB_INSN_SIZE, info);
+
+  if (err)
+    {
+      (*info->memory_error_func) (err, addr, info);
+      return -1;
+    }
+
+  unsigned long a;
+
+  bfd_vma (*get32) (const void *)
+      = info->endian == BFD_ENDIAN_BIG ? bfd_getb32 : bfd_getl32;
+
+  a = get32 (insn_buf);
+
+  (*info->fprintf_func) (info->stream, "rssb %#0lx", a);
+
+  return RSSB_INSN_SIZE;
+}

@@ -24,7 +24,7 @@
 // #include "rssb-opc.h"
 #include <stdlib.h>
 #include <stdint.h>
-
+#if 0
 typedef uint64_t insn_t;
 
 /* These fake label defines are use by both the assembler, and
@@ -63,8 +63,11 @@ typedef uint64_t insn_t;
 /* Validate that signed n-bit immediate is within bounds.  */
 #define VALIDATE_S_IMM(v, n) \
   (v < (long) (1UL << (n-1)) && v >= -(offsetT) (1UL << (n-1)))
+#endif
 #define MAX_OPERANDS 1
 #define RSSB_OPERAND_SIZE 4
+#define RSSB_INSN_SIZE 4
+#if 0
 static inline unsigned int rssb_insn_length (insn_t insn ATTRIBUTE_UNUSED)
 {
   return RSSB_OPERAND_SIZE;
@@ -182,5 +185,6 @@ typedef struct
   operand_desc operands[MAX_OPERANDS];
 }
 inst;
+#endif
 
 #endif /* _RSSB_OPCODES_H_ */

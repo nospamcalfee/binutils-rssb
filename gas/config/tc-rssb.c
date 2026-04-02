@@ -47,7 +47,7 @@ symbolS * GOT_symbol;
 #endif
 
 /* Current instruction we're assembling.  */
-const inst *instruction;
+// const inst *instruction;
 
 /* Endianness. */
 extern int target_big_endian;

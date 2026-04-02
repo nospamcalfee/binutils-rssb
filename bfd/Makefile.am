@@ -237,6 +237,7 @@ ALL_MACHINES_CFILES = \
 	cpu-riscv.c \
 	cpu-rl78.c \
 	cpu-rs6000.c \
+	cpu-rssb.c \
 	cpu-rx.c \
 	cpu-s12z.c \
 	cpu-s390.c \
