@@ -14,12 +14,12 @@
     rssb \p2		#p2 = p2 - (-p1) p2 was zero acc was -p1
     rssb scratch	#skipped always or 0
 .endm
-.macro ADDRESS p1, p2
-	.data
-addr_data_\@:	.long	\p1
-	.text
-	rssb addr_data_\@
-.endm
+		#.macro ADDRESS p1, p2
+		#	.data
+		#addr_data_\@:	.long	\p1
+		#	.text
+		#	rssb addr_data_\@
+		#.endm
 .equ PC, 0
 .macro jmp p1           # jump to label p1
     clr scratch         # clear the scratch area so acc=0
@@ -29,15 +29,15 @@ addr_data_\@:	.long	\p1
 				                        # acc contains the difference between the label
 				                        # and the current pc
 # arithmetic is done in byte addressable mode, not word addressable so *4
-	rssb addr_data_		# acc gets address of target (wont skip)
+	rssb addr_data_\@		# acc gets address of target (wont skip)
     rssb scratch	#scratch,acc = 0 - p1 or -p1
     rssb scratch	#skipped always or was 0
     rssb PC         		# pc = pc - offset (branch)
 #jump_data_\@:
-	.set 	jump_data_ ,  \p1-. #origin-. #\p1
+	.set 	jump_data_\@ ,  \p1-. #origin-. #\p1
 
 	.data
-addr_data_:	.long	 jump_data_
+addr_data_\@:	.long	 jump_data_\@
 	.text
 .endm
 
@@ -50,7 +50,7 @@ ytest: .long 0
 	.text
 origin:
 	rssb _start #_start #pc, match simulator assumptions
-	rssb 0xffff0001 # for testing initial acc value
+	rssb 1 # for testing initial acc value
 	rssb 0x2
 	rssb 0x3
 	rssb 0x4
@@ -59,17 +59,11 @@ clear:
 	clr fred
 after_clear:
 jump:
-	jmp jump
+	jmp move
 move:
 	mov xtest,fred
 after_move:
 	mov fred, ytest
-after_jump:
-	rssb fred
-	rssb xtest
-cont:	rssb 100
-	rssb 0x12345678
-	rssb fred + 0x20 + 0x30
-next:	rssb _start
-	. = 512
+	jmp after_move
+	. = 0x1000
 nextdata:
