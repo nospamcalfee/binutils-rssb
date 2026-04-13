@@ -39,9 +39,14 @@ LIT_\constant: .long \constant
 //fixme this assumes address is absolute, but needs to be relative...
 //fixme needs to read pc, adjust the target with the pc, then jump
 .macro jmpi p1          # jump to address stored in p1
- 	mov \p1, scratch2	# get target address
- 	#sub jump_lit, scratch2
-    sub scratch2, PC	# and jump to indirect address
+	#clr j_scratch
+	#rssb \p1
+	#rssb PC
+	mov \p1, j_scratch	# get target address
+ 	sub jump_lit, j_scratch
+	sub PC, j_scratch	# offset removing local pc
+	neg j_scratch
+	sub j_scratch, PC	# and jump to indirect address
 .endm
 
 # dst = src - dst
@@ -71,13 +76,12 @@ LIT_\constant: .long \constant
 	.data
 scratch: .long 0x1111111	#used in macros
 scratch2: .long 0x2			#used in macros
-scratch3: .long 0x3			#used in macros
+j_scratch: .long 0x3			#used in macros
 
 fred:	.long 0x444444
 	.skip 4
 xtest: .long 0xfedcba98
 ytest: .long 3
-jump_lit: .long -0x78
 	.text
 origin:
 	rssb _start #_start #pc, match simulator assumptions
@@ -86,11 +90,19 @@ origin:
 	rssb 0x3
 	rssb 0x4
 _start:
-#	LITERAL before_neg
 	.data
-LIT_before_neg: .long before_neg -0x58
+jump_lit: .long (0x44)
 	.text
-	jmpi LIT_before_neg
+#	LITERAL -clear
+.equ x, .-0x100068
+	.data
+LIT_clear: .long x
+	.text
+#	.data
+#LIT_before_neg: .long before_neg -0x58
+#	.text
+	LITERAL _start
+	jmpi LIT__start
 before_neg:
 	LITERAL 1
 	neg fred	#test negate
@@ -105,8 +117,8 @@ move:
 	mov xtest,fred
 	mov fred, ytest
 after_move:
-	jmpi LIT_before_neg
+	jmpi LIT_clear
 
 #	jmp after_move
-	. = 0x1000
+	. = 0x400
 nextdata:
