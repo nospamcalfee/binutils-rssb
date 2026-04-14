@@ -36,17 +36,23 @@ LIT_\constant: .long \constant
 	.text
 .endm
 
-//fixme this assumes address is absolute, but needs to be relative...
-//fixme needs to read pc, adjust the target with the pc, then jump
+
+//every jmpi instruction needs a literal reflecting the pc adjustment.
+//Use scratches to deref a variable and adjust the target with the pc
+//this is hard...
 .macro jmpi p1          # jump to address stored in p1
-	#clr j_scratch
-	#rssb \p1
-	#rssb PC
-	mov \p1, j_scratch	# get target address
- 	sub jump_lit, j_scratch
-	sub PC, j_scratch	# offset removing local pc
-	neg j_scratch
-	sub j_scratch, PC	# and jump to indirect address
+	mov \p1, scratch2 #jump dest is in ..
+	sub addr_data_\@, scratch2 #adjust to contents of ..
+    clr scratch         # clear the scratch area so acc=0
+	# arithmetic is done in byte addressable mode, not word addressable so *4
+	rssb scratch2		# acc gets address of target (wont skip)
+    rssb scratch	#scratch,acc = 0 - p1 or -p1
+    rssb scratch	#skipped always or was 0
+    rssb PC         		# pc = pc - offset (branch)
+	.set 	jump_data_\@ ,  origin-.
+	.data
+addr_data_\@:	.long	 jump_data_\@
+	.text
 .endm
 
 # dst = src - dst
@@ -90,12 +96,11 @@ origin:
 	rssb 0x3
 	rssb 0x4
 _start:
-	.data
-jump_lit: .long (0x44)
-	.text
 	LITERAL after_move
 	LITERAL _start
-	jmpi LIT_after_move
+	LITERAL before_neg
+	jmpi LIT_before_neg #LIT_after_move #LIT__start
+	jmp _start
 before_neg:
 	LITERAL 1
 	neg fred	#test negate
