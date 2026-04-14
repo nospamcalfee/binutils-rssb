@@ -93,16 +93,9 @@ _start:
 	.data
 jump_lit: .long (0x44)
 	.text
-#	LITERAL -clear
-.equ x, .-0x100068
-	.data
-LIT_clear: .long x
-	.text
-#	.data
-#LIT_before_neg: .long before_neg -0x58
-#	.text
+	LITERAL after_move
 	LITERAL _start
-	jmpi LIT__start
+	jmpi LIT_after_move
 before_neg:
 	LITERAL 1
 	neg fred	#test negate
@@ -117,8 +110,7 @@ move:
 	mov xtest,fred
 	mov fred, ytest
 after_move:
-	jmpi LIT_clear
+	jmpi LIT__start
 
-#	jmp after_move
 	. = 0x400
 nextdata:
