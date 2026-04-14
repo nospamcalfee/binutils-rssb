@@ -30,6 +30,26 @@
 addr_data_\@:	.long	 jump_data_\@
 	.text
 .endm
+
+# an internal macro, scratch must be cleared by caller
+# take jump if acc==0
+.macro ZAJMP label     # if acc=0		if acc<>0
+	rssb scratch       # 0 (noskip)		-acc (must skip)
+	rssb addr_data_\@  # if zero acc, acc= -jump_data_\@ (noskip)
+	rssb scratch       # negative addr_data_\@-l (mustskip)	0 (noskip)
+	rssb scratch       # skipped unless 0 (nop)
+	rssb PC            # conditionally changes the PC
+
+	.set 	jump_data_\@ ,  \label-.
+	.data
+addr_data_\@:	.long	 jump_data_\@
+	.text
+
+.endm
+
+
+
+
 .macro LITERAL constant
 	.data
 LIT_\constant: .long \constant
@@ -45,7 +65,7 @@ LIT_\constant: .long \constant
 	sub addr_data_\@, scratch2 #adjust to contents of ..
     clr scratch         # clear the scratch area so acc=0
 	# arithmetic is done in byte addressable mode, not word addressable so *4
-	rssb scratch2		# acc gets address of target (wont skip)
+	rssb scratch2		# m-0 == acc gets address of target (wont skip)
     rssb scratch	#scratch,acc = 0 - p1 or -p1
     rssb scratch	#skipped always or was 0
     rssb PC         		# pc = pc - offset (branch)
