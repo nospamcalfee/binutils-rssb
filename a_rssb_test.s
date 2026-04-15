@@ -48,14 +48,28 @@ addr_data_\@:	.long	 jump_data_\@
 .endm
 
 #Jump to label if test=0
-.macro ZJMP test label
+.macro zjmp test label
     clr scratch        #now scratch and mem == 0
     rssb \test         #acc,mem = mem-acc wont skip
 	ZAJMP scratch, \label
 .endm
 
-
-
+.macro jge src1, src2, label
+	mov \src1, j_scratch
+	clr scratch2	#acc=0
+	rssb \src2 		#acc=src2 wont skip
+	rssb j_scratch 	#compare with src1 skip if src2>src1 (borrow)
+	rssb j_scratch 	#no skip, zero acc won't skip
+	ZAJMP scratch2, \label
+.endm
+.macro jle src1, src2, label
+	jge \src2, \src1, \label
+.endm
+.macro jeq src1, src2, label
+	mov \src1, j_scratch
+	sub \src2, j_scratch
+	zjmp j_scratch, \label
+.endm
 .macro LITERAL constant
 	.data
 LIT_\constant: .long \constant
@@ -84,11 +98,10 @@ addr_data_\@:	.long	 jump_data_\@
 # dst = src - dst
 .macro sub src, dst
     clr scratch         # clear the scratch area so acc=0
-    rssb \src 			# acc = src - 0
-    rssb scratch		# scratch,acc = 0 - (-src)
-    rssb scratch		# skipped always or was 0
-    rssb \dst			# dst = dst - (-src)
-    rssb scratch		# skipped unless 0
+    rssb \src 			# acc,src = src no skip
+    rssb \dst 			# dst-src might skip
+    rssb scratch 		# acc,scratch = acc-scratch will skip unless 0
+    rssb scratch 		# mainly noop
 .endm
 
 # negate src
@@ -125,16 +138,26 @@ _start:
 	LITERAL after_move
 	LITERAL _start
 	LITERAL before_neg
+cc:
+	jeq ytest, fred, _start
+bb:
+	jge ytest, fred, before_neg
+aa:	jle fred, ytest, before_neg
+a:
+	jle ytest, ytest, before_neg
+b:
+	jge	fred, ytest, _start
+c:
 	jmpi LIT_before_neg #LIT_after_move #LIT__start
 	#jmp _start
 before_neg:
 	LITERAL 1
 	neg fred	#test negate
-	ZJMP fred _start
+	zjmp fred _start
 
 clear:
 	clr fred
-	ZJMP fred clear
+	zjmp fred clear
 after_clear:
 	add ytest, fred
 	sub LIT_1, fred
@@ -146,5 +169,5 @@ move:
 after_move:
 	jmpi LIT__start
 
-	. = 0x400
+	. = 0x500
 nextdata:
