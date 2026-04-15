@@ -31,13 +31,13 @@ addr_data_\@:	.long	 jump_data_\@
 	.text
 .endm
 
-# an internal macro, scratch must be cleared by caller
+# an internal macro, scr must be cleared by caller
 # take jump if acc==0
-.macro ZAJMP label     # if acc=0		if acc<>0
-	rssb scratch       # 0 (noskip)		-acc (must skip)
+.macro ZAJMP scr, label # if acc=0		if acc<>0
+	rssb \scr          # 0 (noskip)		-acc (must skip)
 	rssb addr_data_\@  # if zero acc, acc= -jump_data_\@ (noskip)
-	rssb scratch       # negative addr_data_\@-l (mustskip)	0 (noskip)
-	rssb scratch       # skipped unless 0 (nop)
+	rssb \scr          # negative addr_data_\@-l (mustskip)	0 (noskip)
+	rssb \scr          # skipped unless 0 (nop)
 	rssb PC            # conditionally changes the PC
 
 	.set 	jump_data_\@ ,  \label-.
@@ -51,7 +51,7 @@ addr_data_\@:	.long	 jump_data_\@
 .macro ZJMP test label
     clr scratch        #now scratch and mem == 0
     rssb \test         #acc,mem = mem-acc wont skip
-	ZAJMP \label
+	ZAJMP scratch, \label
 .endm
 
 
