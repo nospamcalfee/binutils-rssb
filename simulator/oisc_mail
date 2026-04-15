@@ -1,0 +1,608 @@
+Path: dms!weitek!pyramid!oliveb!ames!nrl-cmf!ukma!gatech!ncsuvx!ece-csc!ncrcae!ncrlnk!uunet!mcvax!ukc!strath-cs!glasgow!icdoc!qmc-cs!harlqn!andrew
+From: andrew@jung.harlqn.uucp (Andrew Watson)
+Newsgroups: comp.arch
+Subject: Re: OISC was Re: ZISC computers
+Message-ID: <ANDREW.88Nov26222530@jung.harlqn.uucp>
+Date: 26 Nov 88 23:25:30 GMT
+References: <3562@hubcap.UUCP> <579@dms.UUCP>
+Sender: news@harlqn.UUCP
+Organization: Harlequin Limited, Cambridge, UK
+Lines: 30
+In-reply-to: albaugh@dms.UUCP's message of 17 Nov 88 21:13:06 GMT
+
+In article <579@dms.UUCP> albaugh@dms.UUCP (Mike Albaugh) writes:
+
+   One possible implementation is a machine which has the instruction:
+  Reverse Subtract and skip on Borrow. That is, every instruction has no opcode
+  but does have an address. The accumulator is subtracted from that address and
+  the result left both there and in the accumulator. If the subtraction caused
+  a borrow (i.e. no carry out of the ALU), the subsequent instruction is skipped.
+  The only handwaving required is for the PC to live in a fixed location
+  (say 0, ala PDP-5). A very naive control unit which does one instruction per
+  6 clock cycles can be implemented, a slightly less naive one can do it in
+  5 (sometimes 4), and shadowing the PC can get it to 3 (sometimes 2).
+
+  [ ... lots of interesting detail deleted ... ]
+
+I heard that an undergraduate at Manchester University (UK) built something
+very much like this as a final-year project. He also wrote macros to emulate
+the 8086 instruction set, and as a result benchmarked his contraption as faster
+than a stock IBM PC.
+
+Would any Manchunians (Mario? Ifor?) like to comment?
+--
+			       Regards,
+
+                                   Andrew.
+
++-----------------------------------------------------------------------------+
+|     Andrew Watson, Harlequin Limited,              andrew@uk.co.harlqn      |
+|     Barrington Hall, Barrington,                   Tel: +44 223 872522      |
+|     Cambridge CB2 5RG, UK                          Fax: +44 223 872519      |
++-----------------------------------------------------------------------------+
+Path: dms!weitek!pyramid!oliveb!ames!nrl-cmf!mailrus!tut.cis.ohio-state.edu!bloom-beacon!spdcc!ima!compilers-sender
+From: davis@clocs.cs.unc.edu (Mark Davis)
+Newsgroups: comp.compilers,comp.arch
+Subject: Real Compiler for One Instruction Computer?
+Summary: Has anyone ever seriously investigated this?
+Keywords: ZISC RISC SB compiler realized
+Message-ID: <5507@thorin.cs.unc.edu>
+Date: 23 Nov 88 14:25:19 GMT
+Sender: compilers-sender@ima.ima.isc.com
+Reply-To: davis@clocs.cs.unc.edu (Mark Davis)
+Lines: 20
+Approved: compilers@ima.UUCP
+Xref: dms comp.compilers:94 comp.arch:2204
+
+Recently on comp.arch there has been discussion of a zero instruction
+set computer (ZISC) which actually is a one operation computer.  One
+architecture is the Subtract and branch on less that zero instruction
+with 3 or 4 operands (I find some references to Van der Poel, 1956
+for this construction).
+
+Has anyone ever tried to write a compiler for such a machine or done
+any significant simulations?
+
+Thanks - Mark
+[I've heard that in the 1950's there was a Ph.D. thesis implementing a
+Fortran compiler for a Turing machine, which is sort of the same spirit.
+but would be fascinated to hear of any other work in that vein.  I suspect
+it would be filed under theory of computation.  -John]
+[From davis@clocs.cs.unc.edu (Mark Davis)]
+--
+Send compilers articles to ima!compilers or, in a pinch, to Levine@YALE.EDU
+Plausible paths are { decvax | harvard | yale | bbn}!ima
+Please send responses to the originator of the message -- I cannot forward
+mail accidentally sent back to compilers.  Meta-mail to ima!compilers-request
+Path: dms!weitek!pyramid!prls!gert
+From: gert@prls.UUCP (Gert Slavenburg)
+Newsgroups: comp.arch
+Subject: Re: Real Compiler for One Instruction Computer?
+Summary: No, but an interpreter and a real machine
+Keywords: OISC vanderPoel PL0 Wirth
+Message-ID: <17061@prls.UUCP>
+Date: 29 Nov 88 18:23:38 GMT
+References: <3562@hubcap.UUCP> <579@dms.UUCP>
+Reply-To: gert@prls.UUCP (Gert Slavenburg)
+Organization: Philips Research Labs, Sunnyvale, California
+Lines: 34
+
+Actually, I own a REAL HARDWARE OISC according to van der Poel. It runs
+(crawls would be a better word) the PL0 high level language (a Pascal subset). 
+
+Its origin is immaterial, suffice it to say that some very bright and very
+fanatic people put the hardware together in 1987 in the Netherlands, just for
+fun, and decided to show that it could do everything that a computer was 
+supposed to do, by writing an interpreter for the PL0 virtual machine [Wirth
+1976] for the 'van der Poel' instruction set. I am the 'caretaker' of the
+machine.
+
+The actual machine is a single board, designed to operate at a reasonably high
+clock speed (I believe 12 MHz), using fast static RAM as main memory. The only
+I/O of the 'computer' is a double UART, to hook it between an Atari/ST and a
+terminal. The ST does the translation of the Pascal subset (PL0 from Wirth's
+book 'Algorithms + Data Structures = Programs') to the PL0 virtual machine
+code. There is no reason why the compiler couldn't be made to run on the OISC, 
+other than the fact that the current OISC board has a limited amount of
+main memory and lacks file I/O devices (besides the obvious SPEED problem).
+
+The whole thing was a fun exercise, but the actual machine runs and does its
+job, hence showing once and for all that 'van der Poel' was right (of course).
+
+However, don't think of this as the ultimate RISC. RISC is a carefull balance
+of what to do in hardware and what to do in software - not a minimization of
+the opcode set. The van der Poel machine is VERY SLOW on any task, given its
+memory bandwidth, due to the fact that doing any computation at all requires
+just too many instructions.
+
+  just thought I'd mention that it CAN and HAS BEEN done,
+
+  Gert Slavenburg
+  (UUCP : ..!pyramid!prls!gert)
+
+[Wirth 1976] N. Wirth, 'Algorithms + Data Structures = Programs', Prentice Hall
+Path: dms!weitek!pyramid!prls!mips!wyse!vsi1!ames!killer!texbell!sugar!ficc!uunet!mcvax!ukc!mupsy!mucs!trevor
+From: trevor@ux.cs.man.ac.uk (Trevor Hopkins)
+Newsgroups: comp.arch
+Subject: OISC was Re: ZISC computers
+Keywords: OIC OISC
+Message-ID: <5183@ux.cs.man.ac.uk>
+Date: 29 Nov 88 14:18:06 GMT
+Organization: Computer Science, University of Manchester, UK
+Lines: 69
+
+In a previous article Andrew Watson asked someone from Manchester to
+comment on the OIC developed here, well since I knew the guy who built
+the it I thought I might as well answer this one.  Excuse any mistakes
+-- this is the first time I have posted to the net.
+
+Here are the details:
+
+J.R. Bown built a One Instruction Computer as his 3rd year
+undergraduate project at the University of Manchester. His report
+entitled `The One Instruction Computer' (third year project report No.
+17, 1987) claims in its abstract to cover:
+
+	The design and construction of a One Instruction Computer, OIC
+	-- the extrapolation to its logical extreme of the philosophy
+	of Reduced Instruction Set Computers, RISCs. The provision of
+	a user environment for the testing and evaluation of software
+	written for the One Instruction Computer Once Built.
+
+The instruction which this machine implemented was a Reverse Subtract
+Skip if Borrow, as described in previous postings.
+
+Just skipping through this report I came on a rather nice quote in his
+conclusions:
+
+	Much to everyone's surprise, what at first sight appears to be
+	a rather mad idea, namely a computer with only one instruction,
+	appears in fact to have a great deal of potential as a viable
+	machine. 
+
+John actually built that machine and produced a fairly chunky report
+on it, which I have in front of me now. I don't know a lot about it so
+I`ll skim through the report and try and pick out the main points.
+
+His implementation used a 60ns basic cycle, with the number of cycles
+per instruction varying with the type of operands used. He built a
+cross assembler for the machine and was able to download programs into
+the OIC and upload the results. He also had an emulator program. A
+major section of the report gives details of the assembler and emulator.
+
+In the report he gives a number of comparisons of code written for the
+OIC and the corresponding versions for a PDP-11 -- the OIC code is 2
+to 2.5 times larger. He concludes that optimisation of programs is
+extremely important and identifies 3 main types of optimisation:
+
+Functional: putting the emphasis on using subtracts wherever possible.
+Self Modifying code: - needed for indirect operations.
+Code re-ordering.
+
+He says his implementation was roughly equivalent to a 1 - 1.5 MIP
+PDP-11 type machine (whatever that means), but he describes some
+modifications which could be made to a future version of the machine
+which he says would make it nearly comparable to a 68020. He points
+out that the actual hardware for this machine could easily be fitted
+into one chip, together with a significant amount of memory.
+
+I hope this is of some use (or at least some interest) to some of you
+out there.
+
+	Rhod
+
+ _______________________________________________________________________
+| Dept. of Computer Science    JANET:      rmd@uk.ac.man.cs.r5    	|
+| The University               USENET: mcvax!ukc!man.cs.r5!rmd    	|
+| Manchester M13 9PL           Tel:    +44-61-275 6149             	|
+| U.K.                                                             	|
+|   ______      							|
+| /~      ~\ 	So long and thanks for all the fish			|
+| `-':  :`-'    							|
+|____;  ;_____________the mushroom project______________________________|
+Path: dms!weitek!pyramid!decwrl!labrea!agate!helios.ee.lbl.gov!lll-tis!oodis01!uplherc!esunix!bpendlet
+From: bpendlet@esunix.UUCP (Bob Pendleton)
+Newsgroups: comp.arch
+Subject: Re: OISC was Re: ZISC computers
+Message-ID: <1120@esunix.UUCP>
+Date: 29 Nov 88 15:21:52 GMT
+Organization: Evans & Sutherland, Salt Lake City, Utah
+Lines: 45
+
+Several years ago I also came up with the one instruction computer
+that everyone else has also invented. Since I went to a school that
+Ivan Sutherland taught at I must assume I picked up the idea as it
+floated past, but I really thought I invented it, sigh.
+
+My variation of the one instruction was the Conditional Move From Here
+To There And Clear Flags or CMFHTTACF instruction. The idea being that
+if any flags are set the instruction is skipped, in all cases the
+flags register is cleared. All instructions are two addresses, a
+source and a destination. The PC, the flag register, the flags mask
+register, and all ALU registers are mapped to memory locations. And,
+of course, some operations have the side effect of setting bits in the
+flags register.
+
+Using this machine as a basis for argument I "showed" that there were
+good economic reasons, the cost of RAM and such, to try to reduce the
+length of the addresses in the CMFHTTACF instruction. If your address
+space is 2^32 then the CMFHTTACF instruction is 64 bits long.
+
+The easiest way I could think of to reduce the length of the
+instruction was to use two address spaces. One very small address
+space that only had enough addresses to map the ALU registers, the PC,
+and such.  One large address space for memory. And, to add a one bit
+direction flag. To tell if the move was from the large address space
+to the small or from the small to the large.
+
+This looked suspiciously like the opcode, register index, and address
+type of instructions we see in typical computers. Hmmm.
+
+Well, repeated applications of the cheapness principle rather rapidly
+resulted in a multilevel machine that looked an awful lot like a
+a sort of RISC with microcoded coprocessors. 
+
+This exercise lead me to the conclusion that all modern computers are
+economically motivated variations of the CMFHTTACF machine. :-)
+
+The odd things that go through the minds of grad. students while
+trying to write a thesis.
+
+		Bob P.
+
+-- 
+              Bob Pendleton, speaking only for myself.
+UUCP Address:  decwrl!esunix!bpendlet or utah-cs!esunix!bpendlet
+
+		Reality is what you make of it.
+
+From weitek!ubvax!mcvax!r5.cs.man.ac.uk!trevor Thu Dec  1 22:11:29 1988
+Received: by weitek.UUCP (smail2.3)
+	id AA02295; 1 Dec 88 22:11:17 PST (Thu)
+Received: by ubvax.UB.Com; id AA07324; Thu, 1 Dec 88 15:34:21 PST
+Received: from mcvax.UUCP by uunet.UU.NET (5.59/1.14) with UUCP 
+	id AA24088; Thu, 1 Dec 88 18:15:09 EST
+Received: by mcvax.cwi.nl via EUnet; Thu, 1 Dec 88 22:00:32 +0100 (MET)
+Received: from r1.cs.man.ac.uk by kestrel.Ukc.AC.UK   via Janet (UKC CAMEL FTP)
+           id aa09496; 1 Dec 88 12:24 GMT
+Received: from r5.cs.man.ac.uk (m_mushroom) by r1.cs.man.ac.uk; Thu, 1 Dec 88 12:24:16 GMT
+From: Trevor Hopkins <mcvax!r5.cs.man.ac.uk!trevor>
+Date: Thu, 1 Dec 88 12:24:04 GMT
+Message-Id: <15863.8812011224@r5.cs.man.ac.uk>
+To: mahar@bullwinkle.weitek.com
+Cc: albaugh@dms, mahar@bullwinkle
+In-Reply-To: Mike Mahar's message of Wed, 30 Nov 88 10:02:26 PST <8811301802.AA23102@bullwinkle.weitek.com>
+Subject: John Bown's One Instruction Computer
+Status: OR
+
+Hi,
+
+I was the supervisor for John Bown's final year project.  It's fair to
+say that the project suggestion was generated having read your OIC
+posting on comp.arch, and the subsequent discussion.
+
+John started with the idea of a RSSB instruction, and implemented a
+one-address form (read-modify-write) of OIC.  He used 16-bit words,
+and his implementation used standard TTL parts, with a couple of small
+PALs for timing generation.  His timing was quite complex, as he
+implemented part of the memory using register chips (fast) and the
+rest using (slow) static RAMs (32K 16-bit words).  All I/O was via a
+couple of UARTs, which allowed a connection to a VDU (to drive the
+`front-panel' monitor) and a host computer (microVAX).  The uVAX ran a
+cross-assembler, with extensive macro facilities, and an `instruction'
+simulator.  I've got the board which John built in front of me; it has
+about 45 chips on it (all SSI/MSI, except for memory), and uses
+`wire-wrap' construction.
+
+I'm sure that John didn't see Mike Albaugh's work; I've certainly not
+seen it myself.  I would be very interested in finding out how Mike
+went about the design and construction.
+
+Trevor.
+------------------------------------------------------------------
+Trevor P. Hopkins, Room 2.95, Department of Computer Science,
+University of Manchester, Oxford Road, Manchester, M13 9PL, U.K.
+Tel: (+44) 61-275 6170    FAX: (+44) 61-275 6280    Internal: 6170
+ARPA: trevor%ux.cs.man.ac.uk@nss.cs.ucl.ac.uk   
+JANET: trevor@uk.ac.man.cs.ux    UUCP: ..ukc!man.cs.ux!trevor
+------------------------------------------------------------------
+
+--- excerpted re-post of my OISC article (from author_copy)
+From vn Thu Nov 17 13:13:06 1988
+Subject: OISC was Re: ZISC computers
+Newsgroups: comp.arch
+References: <3562@hubcap.UUCP>
+
+
+	I wanted to point out that a machine with no opcode has not
+zero, but one instruction(s). (2**0 = 1)
+
+	As several people have noted, the idea of using addresses to
+"cheat" (refer to function units) is well represented in the literature.
+A recent article in ACM Computer Architecture News even has the audacity
+to call this approach "The Ultimate RISC". I might be persuaded that it
+is the "ultimate _useful_ RISC", but machines such as Van der Poel's
+(article <3562@hubcap.UUCP>, by mark@hubcap.UUCP (Mark Smotherman) )
+are arguably much more RISCy.
+
+	A few years ago (Before I was personally on UseNet), I had a
+friend email (Maybe post?) an earlier version of the following, In
+which I present my own "ultimate" RISC. Since mine also has one (or two,
+but not several) "magic" location, it may not be truly "ultimate". I
+feel that it is closer than the various two and three address variations.
+I originally intended to actually wire-wrap the first version, and may
+yet build the current version, but kids and a house have changed my
+priorities. I do have a C simulator, and some useful macros.
+
+By the way, the GRI-??? mentioned in <20743@apple.Apple.COM> by 
+baum@apple.com was manufactured by George Risk Industries, so it may
+have been ahead of its time in nomenclature too :-)
+
+And now, a re-run:
+
+Random thoughts on the Ultimate Reduced Instruction Set Computer
+
+	One possible implementation is a machine which has the instruction:
+Reverse Subtract and skip on Borrow. That is, every instruction has no opcode
+but does have an address. The accumulator is subtracted from that address and
+the result left both there and in the accumulator. If the subtraction caused
+a borrow (i.e. no carry out of the ALU), the subsequent instruction is skipped.
+The only handwaving required is for the PC to live in a fixed location
+(say 0, ala PDP-5). A very naive control unit which does one instruction per
+6 clock cycles can be implemented, a slightly less naive one can do it in
+5 (sometimes 4), and shadowing the PC can get it to 3 (sometimes 2).
+
+	Some macros for the machine, to implement more common instructions are:
+
+	macro CLR p1
+	p1			; p1,acc <- p1-acc (may skip)
+	p1			; p1,acc <- 0 (cannot skip)
+	p1			; p1,acc <- 0 (cannot skip)
+	ENDM
+;	The third instruction is not redundant, since we have no way of knowing
+; whether the first will skip.
+
+	macro LOAD p1 p2
+	CLR p2			; We need to provide a sacrificial location
+	p1			; acc,p1 = p1-0 (cannot skip)
+	ENDM
+
+	macro STORE p1 z	; z must be a pre-zeroed location
+	z			; acc,z = -acc (will skip unless acc=0)
+	z			; acc,z = 0 (a nop in this case)
+	CLR p1
+	z			; acc = z (-acc from entry, cannot skip)
+	p1			; acc,p1 = entry acc (will skip unless 0)
+	z			; another NOP to fill the skip safely.
+	ENDM
+
+;	The necessity of providing a sacrificial location for LOAD and
+; a guaranteed zero (which is destroyed) for STORE imply that the
+; "one-address" machine is an inappropriate paradigm. The "two-address"
+; machine yields a substantial improvement:
+
+	macro MOV p1 p2 z
+	CLR p2
+	z
+	z			; Also clears z, but shorter 'cuz we can't skip
+	p1			; acc,p1 = p1
+	z			; acc,z = -p1		(will skip unless 0)
+	z			; in case p1 was 0
+	p2			; acc,p2 = p1		(will skip unless 0)
+	z			; in case p1 was 0
+	ENDM
+
+	macro SUB p1 p2 p3	; (p3=p1-p2), (p2=p2-p1)
+	CLR p3
+	p1			; acc,p1 = p1 (cannot skip)
+	p2			; acc,p2 = p2-p1 (may skip)
+	p3			; acc,p3 = p1-p2 (will skip unless p1=p2)
+	p3			; acc,p3 = p1-p2 (cannot skip)
+	ENDM
+
+The analysis of that one is a bit tricky. If p2 is less than p1, the p2
+instruction skips to the second p3, which cannot skip again, since 
+(p2<p1) IFF (p1>p2). If p2 is greater than p1, the p2 will not skip, but the
+first p3 will, by similar reasoning. If p2=p1, all instructions are executed
+and p2 = p3 = 0.
+
+	macro JMP l
+	CLR	Z
+	lit	next-l		;acc=(next-l)
+next	0			;pc (which is in 0) = next-(next-l) = l
+	ENDM
+
+Actually, the value of the literal needs to be adjusted for the skip which
+will occur if l is at a lower address than next, but I didn't want to clutter
+the psuedo-macro with conditionals.
+
+	macro ZAJMP l z		; if acc=0		if acc<>0
+	z			; 0 (noskip)		-acc (must skip)
+	lit	l-next		; l-next (noskip)	----
+	z			; next-l (mustskip)	0 (noskip)
+	z			; -----			0 (nop)
+next	0			; JMP l			nop
+	ENDM
+
+	macro ZJMP t l z	;Jump to l if t=0
+	LOAD	t z
+	ZAJMP	l z
+	ENDM
+
+    The "lit" function is similar to the # (immediate) operator on such
+machines as have an immediate mode. If you don't have such a mode (many
+early machines didn't), you typically create a "literal pool", for all
+the constants you are going to use. Such constants are shared by all the
+instructions that need to refer to that particular bit pattern. Since a
+careless use could alter the pattern, this can be a source of endless
+"amusement" during debuging. The creation of a literal pool on a macro
+assembler that doesn't have such a feature (such as DEC MACRO-11, because it
+wouldn't use it in its "native tongue") is left as an exercise to the reader,
+for now. I know how _I_ do it, but will leave it as an exercise to the
+reader for any particular machine.
+
+	Robert Murdoch (of Intel, Hi Doch :-)) suggested a refinement of 
+Lyle Rains (of Atari Games, my boss's boss) idea that byte addressability
+of memory would make character operations easier. Doch's idea was to go all
+the way and make the memory bit-addressable. A whole word is still
+referenced and modified in each cycle, but that word can start on any bit
+boundary. Since the extra 4 bits would take a real bite out of the address
+space of a 16-bit machine, this makes most sense with a 32 bit machine. The
+complexities of the hardware get intense (if we want to go very fast), but
+right shifts and field extraction become trivial.
+
+	Interrupts can be handled by forcing references to 0 to go to "1"
+instead. The quotes around "1" are because a bit addressable machine would
+have its second word at address 16 (or 32). Anyway, just oring the interrupt
+control flag with the appropriate address bit on a reference to 0 will do the
+trick. The following software is needed to save and restore the "processor
+status". accs and accs2 are two pre-zeroed locations, to recieve the contents
+of the acc, whether or not the instruction before the interrupt caused a skip.
+accr and accr2 pre-set by the IRQ routine, and the return is before the entry
+so a simple delay on the reset of the IRQ flag accomplishes return
+There are three possible input states to re-construct:
+			 acc==0, !skip;	acc<>0, !skip;	acc<>0, skip
+
+IRQRTN:	clr	IFRESET	; Flag hardware, action delayed 2 cycles past last ref.
+	accr			0	0		-inacc
+	accr2			0 	inacc 		0->inacc skip
+
+; These get set up by:
+INTEN:	accs		;	0	-inacc s	0
+	accs2		;	0	---		-inacc s	
+	accr		;	???	???		---
+	accr		;	0	--?		???
+	accr		;	0	0		--?
+	accr		;	0	0		0
+	accr2		;	???	???		???
+	accr2		;	0	0		0
+	accs		;	0	-inacc		0
+	accr2		;	0	inacc s		0
+	accs2		;	0	---		-innac
+	accs		;	0	0		inacc s
+	accr		;	0	0		---
+	accr		;	0	0		-inacc s
+	accs		;	0	0		---
+	accs		;	0	0		0
+	accs2		;	0	0		innac
+	accs2		;	0	0		0
+; At this point, accs and accs2 are pre-zeroed for next IRQ, accr and accr2
+; are set up for return. Do body of IRQ routine...
+
+	jmp	IRQRTN	; Jump up to return point
+
+; for 28 cycles interrupt overhead...
+; The clear of accs2 could be merged with the jump to IRQRTN to save two cycles
+
+Isn't Science wonderful...
+
+| Mike Albaugh (albaugh@dms.UUCP || {...decwrl!pyramid!}weitek!dms!albaugh)
+| Atari Games Corp (Arcade Games, no relation to the makers of the ST)
+| 675 Sycamore Dr. Milpitas, CA 95035		voice: (408)434-1709
+| The opinions expressed are my own (Boy, are they ever)
+
+-------- my response to yet another OIC enquiry ---------------------
+> 
+> I'm looking Mike, but I would also like to get some news from the horses
+> mouth. So any information that you can send me would be appreciated.
+
+	See below. It's more-or-less what I've posted a few times when this
+subject came up.
+
+> I'm in the process of designing  a basic OIC (what other kinds are there?)
+
+	The ones I know of are variants of "Table Lookup", "[Reverse] subtract",
+and "[Conditional] Move". 
+
+> and I've also come to the conclusion that having magic addresses is the way
+> to go, but I'm still trying to hammer out the details.
+
+	Some machine rely more heavily on "magic addresses" than others.
+The Move Machine category is pretty much _all_ magic addresses. I suppose
+it's also the most practical, in some sense. At least the evidence that one
+even made it into commercial use must count for something :-) I just have
+a "gut" feeling that it's not "really a one-instruction computer", in some
+ideological sense.
+
+> There is also a technique which I have come
+> across which removes the need for the third address in the Subtract Branch
+> if Negative computer, although it requires altering the memory structure
+> somewhat (you go from a linear to a 2d model). I don't know how this would
+> work with your design.
+
+	I didn't do anything so complicated. In a nutshell, the evolution
+of more traditional computer architecture started with a canonical four-
+address instruction:
+
+<dst> = <src1> op <src2>, goto <next>
+
+but folks (under pressure of extremely high memory costs, by today's
+standards) noticed that long chains of instructions tended to follow
+patterns, which could be exploited for "compression" by elimination of
+redundancy.
+
+	Those with random-access memory ditched <next>, as it was
+overwhelmingly simply "insn+1". This change involved adding a "cache" of
+sorts (the PC) for "next expected instruction" and some new instructions
+to alter its value.
+
+	Many others noticed that <dst> was often one of <src1> or <src2>.
+taking this to extremes, many added a single register, the "accumulator",
+which was the implicit <dst> and <src1> of most instructions. By the mid
+1950's, a _very_ typical computer had
+
+acc = acc op <src>
+
+as its dominant instruction format, this was called a "one-address machine"
+
+	machines with drum or delay-line memory tended toward:
+
+acc = acc op <src>, goto <next>
+
+this was called a "1+1 address machine", to distinguish it from another
+popular form, the "Two address machine", which dispensed with acc and
+used
+
+<dst> = <dst> op <src>
+
+later variants blended these by having some number, larger than one but
+smaller than memory, of "registers" (which might actually _be_ in memory)
+so <dst> might take only 2..6 bits to specify. The wildly popular IBM 360,
+PDP-10, and 68000 were of this form. Modern RISCs are often "three address"
+machines, but the "addresses" are limitted to the register set.
+
+	Smaller machines often kept registers in memory, and programmers
+learned to do, um, _interesting_ things by exploiting the dual nature of
+these resources. For example, my machine stores the PC in location zero,
+as several early minicomputers did, most notably the PDP-5, a direct
+ancestor of the PDP-8, which pretty much coined the term "minicomputer".
+
+	I pretty much followed the same sort of evolution from VanDerPoel's
+machine, but chose "skip" rather than branch, to allow an implied PC,
+and "borrow" rather than "minus" to facilitate unsigned arithmetic,
+as I had found it difficult to reconcile the "persistence" of the
+sign bit with the "limitted range" ( :-) of the skip and still do
+useful work. (Note that VanDerPoel had already spec'd a "Reverse Subtract"
+machine, thus including an implicit accumulator. I don't know why
+H&P uses a pure memory-to-memory machine, unless possibly out of some
+sense of "purity" :-)
+
+> Check out "self replication in a 2d von Neumann archicture" by Florent de Dinechin
+> at http://www.cogs.susx.ac.uk/users/ezequiel/alife-page/complexity.html
+
+	I'm always curious about the perceived connection betweeen
+OICs and cellular automata. I never had that view, but I had a boss
+who was _very_ interested in cellular automata and initially excited
+about my machine, for potential use in a cellular automaton. to me,
+they are both "computing devices", but have very different "niches",
+and thus would call for very different designs.
+
+	Below please find an eclectic set of "OIC" postings and mail
+I saved over the years. I attached my own "first re-post" to the
+bottom, but thought I'd send the whole mess as it might give you
+some other useful leads. have fun...
+
+					Mike
+| albaugh@agames.com, speaking only for myself
+
+

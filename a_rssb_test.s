@@ -47,6 +47,12 @@ addr_data_\@:	.long	 jump_data_\@
 
 .endm
 
+#Jump to label if test=0
+.macro ZJMP test label
+    clr scratch        #now scratch and mem == 0
+    rssb \test         #acc,mem = mem-acc wont skip
+	ZAJMP \label
+.endm
 
 
 
@@ -120,12 +126,15 @@ _start:
 	LITERAL _start
 	LITERAL before_neg
 	jmpi LIT_before_neg #LIT_after_move #LIT__start
-	jmp _start
+	#jmp _start
 before_neg:
 	LITERAL 1
 	neg fred	#test negate
+	ZJMP fred _start
+
 clear:
 	clr fred
+	ZJMP fred clear
 after_clear:
 	add ytest, fred
 	sub LIT_1, fred
