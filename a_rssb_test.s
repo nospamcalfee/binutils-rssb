@@ -30,7 +30,21 @@
 addr_data_\@:	.long	 jump_data_\@
 	.text
 .endm
+# save return address after call and do the function jmp
+.macro call function_addr
+	mov addr_data_\@, __return  #save return address
+    jmp \function_addr          #start the function
 
+	.set 	jump_data_\@ , .
+	.data
+addr_data_\@:	.long	 jump_data_\@
+	.text
+.endm
+
+# simply use the __return data
+.macro return
+     jmpi __return
+.endm
 # an internal macro, scr must be cleared by caller
 # take jump if acc==0
 .macro ZAJMP scr, label # if acc=0		if acc<>0
@@ -89,7 +103,7 @@ LIT_\constant: .long \constant
     rssb scratch	#scratch,acc = 0 - p1 or -p1
     rssb scratch	#skipped always or was 0
     rssb PC         		# pc = pc - offset (branch)
-	.set 	jump_data_\@ ,  origin-.
+	.set 	jump_data_\@ ,  .
 	.data
 addr_data_\@:	.long	 jump_data_\@
 	.text
@@ -119,9 +133,10 @@ addr_data_\@:	.long	 jump_data_\@
 	sub \src, \dst 		# dst = src - (-dst)
 .endm
 	.data
-scratch: .long 0x1111111	#used in macros
-scratch2: .long 0x2			#used in macros
-j_scratch: .long 0x3			#used in macros
+scratch: .long 0x1111111    #used in macros
+scratch2: .long 0x2         #used in macros
+j_scratch: .long 0x3        #used in macros
+__return: .long 0x4         #function return address
 
 fred:	.long 0x444444
 	.skip 4
@@ -139,6 +154,9 @@ _start:
 	LITERAL _start
 	LITERAL before_neg
 cc:
+	call test_function
+	jmpi LIT_before_neg #LIT_after_move #LIT__start
+
 	jeq ytest, fred, _start
 bb:
 	jge ytest, fred, before_neg
@@ -148,8 +166,6 @@ a:
 b:
 	jge	fred, ytest, _start
 c:
-	jmpi LIT_before_neg #LIT_after_move #LIT__start
-	#jmp _start
 before_neg:
 	LITERAL 1
 	neg fred	#test negate
@@ -169,5 +185,9 @@ move:
 after_move:
 	jmpi LIT__start
 
-	. = 0x500
+#function
+test_function:
+	return
+last_addr:
+	. = 0x600
 nextdata:
