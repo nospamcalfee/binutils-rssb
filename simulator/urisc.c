@@ -140,6 +140,41 @@ uint32_t readmem(uint32_t offs) {
 uint32_t writemem(uint32_t offs, uint32_t val) {
     memory[offs>>2] = val;
 }
+// function to dump simulator memory words
+void hexdump(const char *desc, uint32_t addr, uint32_t len) {
+    uint32_t i;
+    unsigned char buff[17];
+
+    if (desc != NULL)
+        printf("%s:\n", desc);
+
+    for (i = 0; i < len; i++) {
+        uint32_t word = readmem(addr + (i * 4)); //access sim memory
+        if ((i % 4) == 0) {
+            if (i != 0)
+                printf("  %s\n", buff);
+            printf("  %06x ", addr + (i * 4));
+        }
+
+        printf(" %08x", word);
+
+        for (int j = 0 ; j < 4; j++) {
+            uint8_t byte = word >> (j * 8);
+            if ((byte < 0x20) || (byte > 0x7e))
+                buff[i % 16] = '.';
+            else
+                buff[i % 16] = byte;
+            buff[(i % 16) + 1] = '\0';
+        }
+    }
+
+    while ((i % 4) != 0) {
+        printf("   ");
+        i++;
+    }
+    printf("  %s\n", buff);
+}
+
 void execute( void )
 {
     int op;     /* the current operand pointer      */
@@ -149,7 +184,7 @@ void execute( void )
     trace( "Start at %4.4x\n\n", readmem(MEM_PC) );
     while( (pc = readmem(MEM_PC)) && pc <= MEM_SIZE ) {
         writemem(MEM_PC, pc + PC_STEP_SIZE); //incr, mempc, use temp pc
-        trace( "%4.4x: ", pc * PC_STEP_SIZE);
+        trace( "%4.4x: ", pc /* * PC_STEP_SIZE*/);
         err_if( pc >= MEM_SIZE || pc < 0, "%d: instruction out of range", pc );
         switch( op = readmem(pc) ) {
             case MEM_ZERO:
@@ -178,6 +213,10 @@ void execute( void )
             //for now dont skip when pc is affected
             memory[MEM_PC] += PC_STEP_SIZE;
             trace( "skip\n" );
+        }
+        if (!op) {
+            //pc change
+            hexdump("variables", 0x2000 , 0x20);
         }
     }
     trace( "\nEnd\n" );
