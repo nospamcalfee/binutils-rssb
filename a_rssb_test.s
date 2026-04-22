@@ -6,12 +6,12 @@
 .endm
 .macro mov p1, p2 #move data from p1 to p2
     clr \p2         #clear destination and acc
-    rssb scratch    #load scratch to accumulator
-    rssb scratch    #clear scratch and acc - note: no skip here
+    rssb scratch    #m-acc = m-0 so no skip
+    rssb scratch    #m-0 - m wont skip, clears m, acc
     rssb \p1        #load p1 into acc (acc = p1 - 0)
     rssb scratch    #scratch,acc = 0 - p1 or -p1
     rssb scratch    #skipped always or was 0
-    rssb \p2        #p2 = p2 - (-p1) p2 was zero acc was -p1
+    rssb \p2        #p2 = p2 - (-p1) move result to dest
     rssb scratch    #skipped always or 0
 .endm
 
@@ -132,6 +132,16 @@ __ad_\@:   .long    __jd_\@
 .macro add src, dst
     neg \dst            # dst = -dst
     sub \src, \dst      # dst = src - (-dst)
+.endm
+
+.macro dec src
+    mov LIT_1, scratch2
+    sub \src, scratch2 # dst = src - dst
+    mov scratch2, \src
+.endm
+
+.macro inc argu
+    add LIT_1, argu     #dst = src + dst
 .endm
 
 .macro HALT
@@ -264,9 +274,8 @@ wla:
     add LIT_4, src
 wlb:
     add LIT_4, dst
-    mov LIT_1, scratch2
-    sub cnt, scratch2
-    mov scratch2, cnt
+wls:
+    dec cnt
     jmp word_loop
 word_return:
     return myret

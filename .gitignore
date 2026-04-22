@@ -76,3 +76,6 @@ stamp-*
 /gmp*
 /isl*
 /gettext*
+
+//my local ones
+simulator/uriskit
