@@ -46,7 +46,7 @@ struct var_info find_symbol_by_address(void *map, uint32_t target_addr) {
         //         secthdr, secthdr->sh_offset, secthdr->sh_type,secthdr->sh_flags, secthdr->sh_addr, sectnames + secthdr->sh_name);
         if (secthdr->sh_type == SHT_PROGBITS && secthdr->sh_name) {
             name = sectnames + secthdr->sh_name;
-            printf("%u sh_flags=%d %s \n", i, secthdr->sh_flags, name);
+            // printf("%u sh_flags=%d %s \n", i, secthdr->sh_flags, name);
             sects[i].name = name;    //save sect name
             sects[i].flags = secthdr->sh_flags; //save r/w and other flags
         }
@@ -60,7 +60,7 @@ struct var_info find_symbol_by_address(void *map, uint32_t target_addr) {
         // printf("sym attempt %d: %s\n", i, &names[symbols[i].st_name]);
         // printf("%p st_shndx=0x%x st_value=0x%x st_size=0x%x\n", &symbols[i], symbols[i].st_shndx, symbols[i].st_value, symbols[i].st_size );
         if (*(uint32_t *)&symbols[i].st_value == target_addr) {
-            printf("Match found: 0x%x %s\n", *(uint32_t *)&symbols[i].st_value, &names[symbols[i].st_name]);
+            // printf("Match found: 0x%x %s\n", *(uint32_t *)&symbols[i].st_value, &names[symbols[i].st_name]);
             strncpy(vari.name, &names[symbols[i].st_name], sizeof(vari.name));
             vari.name[sizeof(vari.name) - 1] = '\0';
             vari.st_value = symbols[i].st_value;
@@ -74,6 +74,6 @@ struct var_info find_symbol_by_address(void *map, uint32_t target_addr) {
             return vari; //success
         }
     }
-    printf("No matching symbol found for address 0x%x\n", target_addr);
+    // printf("No matching symbol found for address 0x%x\n", target_addr);
     return vari; //no error, but not match ptrs will be null
  }

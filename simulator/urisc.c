@@ -65,6 +65,9 @@ hexdump -v -e '1/4 "0x%08x\n"' a.flat >a.input
 #include <string.h>
 #include <ctype.h>
 #include <stdint.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/mman.h>
 #include "sym_lookup.h"
 #include <elf.h>
 
@@ -83,7 +86,7 @@ enum {
 #define LINE_SIZE   80
 
 uint32_t memory[MEM_SIZE];   /* the memory space of the machine  */
-int tracing = 1;        /* trace machine execution?         */
+int tracing = 0;        /* trace machine execution?         */
 
     void
 trace( char *str, ... )
@@ -192,15 +195,33 @@ void hexdump(const char *desc, uint32_t addr, uint32_t len) {
     printf("  %s\n", buff);
 }
 
-void execute( void )
+void execute( char *elf )
 {
     int op;     /* the current operand pointer      */
     int pc;     /* the current instruction pointer  */
     int skip;   /* skip the next instruction?       */
+    void* map;
+    off_t size;
+    int fd;
+    struct var_info vars;
 
-    trace( "Start at %4.4x\n\n", readmem(MEM_PC) );
+    if (elf) {
+        fd = open(elf, O_RDONLY);
+        err_if( fd < 0, "could not open elf file: %s", elf );
+
+        // Map the file into memory for easier access
+        size = lseek(fd, 0, SEEK_END);
+        map = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
+    }
+    printf( "Start at %4.4x optional elffile=%s\n\n", readmem(MEM_PC), elf);
     while( (pc = readmem(MEM_PC)) && pc <= MEM_SIZE ) {
         writemem(MEM_PC, pc + PC_STEP_SIZE); //incr, mempc, use temp pc
+        if (elf && tracing) {
+            vars = find_symbol_by_address(map, pc);
+            if (vars.name && *vars.name) {
+                trace("AT %s in %s\n", vars.name, vars.sectname);
+            }
+        }
         trace( "%4.4x: ", pc /* * PC_STEP_SIZE*/);
         err_if( pc >= MEM_SIZE || pc < 0, "%d: instruction out of range", pc );
         switch( op = readmem(pc) ) {
@@ -217,11 +238,21 @@ void execute( void )
                 break;
             default:
                 err_if( op >= MEM_SIZE || op < 0,
-                        "%d: operand out of range", pc );
+                        "addr=0x%x @0x%x operand out of range", op, pc );
                 break;
         }
-        trace( "%+4.4x => %+4.4x - (acc)%+4.4x = ",
+        if (elf && tracing) {
+            vars = find_symbol_by_address(map, op);
+            if (vars.name && *vars.name) {
+                trace( "%+4.4x (%s in %s) =>", op, vars.name, vars.sectname);
+            } else {
+                trace( "%+4.4x =>", op);
+            }
+            trace(" %+4.4x - (acc)%+4.4x = ", readmem(op), readmem(MEM_ACC) );
+        } else {
+            trace( "%+4.4x => %+4.4x - (acc)%+4.4x = ",
                op, readmem(op), readmem(MEM_ACC) );
+        }
         skip = readmem(op) < readmem(MEM_ACC);
         writemem(op, readmem(op) - readmem(MEM_ACC));
         writemem(MEM_ACC, readmem(op));
@@ -231,12 +262,17 @@ void execute( void )
             memory[MEM_PC] += PC_STEP_SIZE;
             trace( "skip\n" );
         }
-        if (!op) {
+        if (!op && tracing) {
             //pc change
             hexdump("variables", 0x2000 , 0x20);
         }
     }
     trace( "\nEnd\n" );
+    if (elf) {
+        // stay tidy
+        munmap(map, size);
+        close(fd);
+    }
     err_if( pc != 0, "%d: abnormal termination", pc );
 }
 
@@ -245,12 +281,17 @@ main( int argc, char **argv )
 {
     int i;
     char *prog = NULL;
+    char *elffile = NULL;
 
     for( i = 1; i < argc; ++i ) {
         if( argv[i][0] == '-' ) {
             switch( argv[i][1] ) {
                 case 't':
                     tracing = 1;
+                    break;
+                case 'e':
+                    i++; //bad code practice skip to next argv
+                    elffile = argv[i];
                     break;
                 default:
                     err_if( 1, "usage:\n    urisc [-t] [progam]" );
@@ -262,7 +303,7 @@ main( int argc, char **argv )
         }
     }
     load_program( prog );
-    execute();
+    execute(elffile);
 
     return( EXIT_SUCCESS );
 }
