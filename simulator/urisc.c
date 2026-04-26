@@ -44,12 +44,29 @@
  * the way or error checking or diagnostics. Good luck.
  */
 
+/* to build:
+gcc -g -O0 urisc.c sym_lookup.c -o uriskit
+*/
+/* to assemble rssb code to run
+#!/bin/bash
+../../install/bin/rssb-elf-as ../a_rssb_test.s
+../../install/bin/rssb-elf-ld -T ../rssb.ld --print-memory-usage a.out -o a.bin
+../../install/bin/rssb-elf-objdump -s -t a.bin
+../../install/bin/rssb-elf-objcopy -O binary a.bin a.flat
+hexdump -v -e '1/4 "0x%08x\n"' a.flat >a.input
+
+*/
+/* to run:
+./uriskit ../build/a.input
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdint.h>
+#include "sym_lookup.h"
+#include <elf.h>
 
 /*
  * Memory mapped registers.
