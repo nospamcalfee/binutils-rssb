@@ -25,9 +25,9 @@
     rssb scratch    #skipped always or was 0
     rssb PC                 # pc = pc - offset (branch)
 
-    .set    __jd_\@ ,  \p1-.
+    .set    __jmp_\@ ,  \p1-.
     .pushsection .rodata
-__ad_\@:   .long    __jd_\@
+__ad_\@:   .long    __jmp_\@
     .popsection
 .endm
 # save return address after call and do the function jmp
@@ -35,9 +35,9 @@ __ad_\@:   .long    __jd_\@
     mov __ad_\@, __return  #save return address
     jmp \function_addr          #start the function
 
-    .set    __jd_\@ , .
+    .set    __call_\@ , .
     .pushsection .rodata
-__ad_\@:   .long    __jd_\@
+__ad_\@:   .long    __call_\@
     .popsection
 .endm
 
@@ -49,14 +49,14 @@ __ad_\@:   .long    __jd_\@
 # take jump if acc==0
 .macro ZAJMP scr, label # if acc=0      if acc<>0
     rssb \scr          # 0 (noskip)     -acc (must skip)
-    rssb __ad_\@  # if zero acc, acc= -__jd_\@ (noskip)
+    rssb __ad_\@  # if zero acc, acc= -__zajmp_\@ (noskip)
     rssb \scr          # negative __ad_\@-l (mustskip) 0 (noskip)
     rssb \scr          # skipped unless 0 (nop)
     rssb PC            # conditionally changes the PC
 
-    .set    __jd_\@ ,  \label-.
+    .set    __zajmp_\@ ,  \label-.
     .pushsection .rodata
-__ad_\@:   .long    __jd_\@
+__ad_\@:   .long    __zajmp_\@
     .popsection
 
 .endm
@@ -103,9 +103,9 @@ LIT_\constant: .long \constant
     #rssb scratch    #scratch,acc = 0 - p1 or -p1
     #rssb scratch    #skipped always or was 0
     rssb PC                 # pc = pc - offset (branch)
-    .set    __jd_\@ ,  .
+    .set    __jmpi_\@ ,  .
     .pushsection .rodata
-__ad_\@:   .long    __jd_\@
+__ad_\@:   .long    __jmpi_\@
     .popsection
 .endm
 

@@ -59,7 +59,8 @@ struct var_info find_symbol_by_address(void *map, uint32_t target_addr) {
     for (int i = 0; i < num_symbols; i++) {
         // printf("sym attempt %d: %s\n", i, &names[symbols[i].st_name]);
         // printf("%p st_shndx=0x%x st_value=0x%x st_size=0x%x\n", &symbols[i], symbols[i].st_shndx, symbols[i].st_value, symbols[i].st_size );
-        if (*(uint32_t *)&symbols[i].st_value == target_addr) {
+        if (symbols[i].st_name != 0 &&
+                *(uint32_t *)&symbols[i].st_value == target_addr) {
             // printf("Match found: 0x%x %s\n", *(uint32_t *)&symbols[i].st_value, &names[symbols[i].st_name]);
             strncpy(vari.name, &names[symbols[i].st_name], sizeof(vari.name));
             vari.name[sizeof(vari.name) - 1] = '\0';
@@ -71,7 +72,7 @@ struct var_info find_symbol_by_address(void *map, uint32_t target_addr) {
                 strncpy(vari.sectname, sects[symbols[i].st_shndx].name, sizeof(vari.sectname));
                 vari.sh_flags = sects[symbols[i].st_shndx].flags; //this variable section r/w flags
             }
-            return vari; //success
+            // return vari; //success
         }
     }
     // printf("No matching symbol found for address 0x%x\n", target_addr);

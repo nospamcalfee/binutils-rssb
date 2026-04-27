@@ -244,7 +244,7 @@ void execute( char *elf )
         if (elf && tracing) {
             vars = find_symbol_by_address(map, op);
             if (vars.name && *vars.name) {
-                trace( "%+4.4x (%s in %s) =>", op, vars.name, vars.sectname);
+                trace( "%+4.4x (%11s in %-7s) =>", op, vars.name, vars.sectname);
             } else {
                 trace( "%+4.4x =>", op);
             }
