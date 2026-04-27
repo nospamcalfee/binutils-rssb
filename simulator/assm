@@ -1,6 +1,7 @@
 #!/bin/bash
-../../install/bin/rssb-elf-as ../a_rssb_test.s
-../../install/bin/rssb-elf-ld -T ../rssb.ld --print-memory-usage a.out -o a.bin
+# execute in the directory with the asm code
+../../install/bin/rssb-elf-as a_rssb_test.s
+../../install/bin/rssb-elf-ld -T rssb.ld --print-memory-usage a.out -o a.bin
 ../../install/bin/rssb-elf-objdump -s -t a.bin
 ../../install/bin/rssb-elf-objcopy -O binary a.bin a.flat
 hexdump -v -e '1/4 "0x%08x\n"' a.flat >a.input
