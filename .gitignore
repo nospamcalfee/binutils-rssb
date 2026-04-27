@@ -79,3 +79,5 @@ stamp-*
 
 //my local ones
 simulator/uriskit
+simulator/a.*
+build/*
