@@ -6,14 +6,9 @@ struct var_info {
     char name[50];      //variable name
     char sectname[50];  //section name for variable
     uint32_t sh_flags;  //from elf, rw/e etc
+    uint32_t sh_size;   //sector size
     uint32_t st_value;  //origin variable address
     uint32_t baseaddress; //section base address
-};
-//internal lookup structure used to fill in var_info
-struct sec_info {
-    const char *name;
-    uint32_t flags;
-    uint32_t baseaddress;
 };
 
 // Function prototypes (declarations)

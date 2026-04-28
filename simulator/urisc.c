@@ -264,7 +264,15 @@ void execute( char *elf )
         }
         if (!op && tracing) {
             //pc change
-            hexdump("variables", 0x2000 , 0x20);
+            if (elf) {
+                vars = find_sector_by_name(map, ".data");
+                if (vars.name && *vars.name) {
+                    hexdump(".data vars", vars.baseaddress, vars.sh_size / 4);
+                }
+
+            } else {
+                hexdump("variables", 0x2000 , 0x20);
+            }
         }
     }
     trace( "\nEnd\n" );

@@ -9,6 +9,16 @@
 
 //to build this program if main is enabled
 //gcc -g3 -O0  sym_lookup.c -o sl.o
+
+//internal lookup structure used to fill in var_info
+struct sec_info {
+    const char *name;
+    uint32_t flags;
+    uint32_t baseaddress;
+    uint32_t sh_size;   //sector size
+};
+
+
 // get symtab and strtab return 1 when gotit
 int get_syms(void *ptr, Elf32_Shdr  **symtab, Elf32_Shdr  **strtab) {
     Elf32_Ehdr* ehdr = (Elf32_Ehdr*)ptr;
@@ -45,6 +55,7 @@ void get_sector_info(void *map, struct sec_info *sects, int sects_size) {
             // printf("%u sh_flags=%d %s \n", i, secthdr->sh_flags, name);
             sects[i].name = name;    //save sect name
             sects[i].flags = secthdr->sh_flags; //save r/w and other flags
+            sects[i].sh_size = secthdr->sh_size;
             sects[i].baseaddress = secthdr->sh_addr;
         }
     }
@@ -64,6 +75,7 @@ struct var_info find_sector_by_name(void *map, const char *name) {
                 vari.name[sizeof(vari.name) - 1] = '\0';
                 vari.st_value = 0;
                 vari.sh_flags = sects[i].flags; //this variable section r/w flags
+                vari.sh_size = sects[i].sh_size;
                 vari.baseaddress = sects[i].baseaddress;
                 vari.sectname[0] = '\0';   //this is a sector so no parent
             }
@@ -103,10 +115,12 @@ struct var_info find_symbol_by_name(void *map, const char *name) {
                 if (symbols[i].st_shndx == SHN_ABS) {
                     strncpy(vari.sectname, "ABS", sizeof(vari.sectname));
                     vari.sh_flags = 0;
+                    vari.sh_size = 0;
                     vari.baseaddress = 0;
                 } else if (symbols[i].st_shndx != SHN_UNDEF) {
                     strncpy(vari.sectname, sects[symbols[i].st_shndx].name, sizeof(vari.sectname));
                     vari.sh_flags = sects[symbols[i].st_shndx].flags; //this variable section r/w flags
+                    vari.sh_size = sects[i].sh_size;
                     vari.baseaddress = sects[symbols[i].st_shndx].baseaddress;
                 }
                 return vari; //success
@@ -149,9 +163,11 @@ struct var_info find_symbol_by_address(void *map, uint32_t target_addr) {
                 strncpy(vari.sectname, "ABS", sizeof(vari.sectname));
                 vari.baseaddress = 0;
                 vari.sh_flags = 0;
+                vari.sh_size = 0;
             } else if (symbols[i].st_shndx != SHN_UNDEF) {
                 strncpy(vari.sectname, sects[symbols[i].st_shndx].name, sizeof(vari.sectname));
                 vari.sh_flags = sects[symbols[i].st_shndx].flags; //this variable section r/w flags
+                vari.sh_size = sects[i].sh_size;
                 vari.baseaddress = sects[symbols[i].st_shndx].baseaddress;
             }
             // return vari; //success

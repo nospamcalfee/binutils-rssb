@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
     vari = find_sector_by_name(map, argv[4]);
 
     if (vari.name && *vari.name) {
-        printf("%s found in section %s (0x%x) sh_flags=0x%x address=0x%x\n", vari.name, vari.sectname, vari.baseaddress, vari.sh_flags, vari.st_value);
+        printf("%s found in section %s (0x%x) sh_flags=0x%x sh_size=0x%x\n", vari.name, vari.sectname, vari.baseaddress, vari.sh_flags, vari.sh_size);
     } else {
         printf("match not found for %s\n", argv[4]);
     }
