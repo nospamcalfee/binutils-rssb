@@ -108,14 +108,17 @@ LIT_\constant: .long \constant
 __ad_\@:   .long    __jmpi_\@
     .popsection
 .endm
-
+// dst = dst-src res=src-dst all 3 unique
+.macro subres src, dst, rdst
+    clr \rdst               #reverse store cleared
+    rssb \src               # acc,src = src no skip
+    rssb \dst               # dst-src might skip dst == dst-src
+    rssb \rdst              # acc,\rdst = src-dst will skip unless src=dst
+    rssb \rdst              # mainly noop ==0
+.endm
 # dst = src - dst
 .macro sub src, dst
-    clr  sub_scratch       # clear the sub_scratch area so acc=0
-    rssb \src              # acc,src = src no skip
-    rssb \dst              # dst-src might skip dst == dst-src
-    rssb sub_scratch       # acc,sub_scratch = src-dst will skip unless src=dst
-    rssb sub_scratch       # mainly noop
+    subres \src, \dst, sub_scratch
     mov  sub_scratch,\dst  # get correct result
 .endm
 
@@ -141,7 +144,7 @@ __ad_\@:   .long    __jmpi_\@
 .endm
 
 .macro inc argu
-    add LIT_1, argu     #dst = src + dst
+    add LIT_1, \argu     #dst = src + dst
 .endm
 
 .macro HALT

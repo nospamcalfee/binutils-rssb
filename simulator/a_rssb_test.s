@@ -35,11 +35,16 @@ _start:
                         jmpi_test:
                             LITERAL jmpi_test
                             jmpi LIT_jmpi_test
+                        mov LIT_xtest, arg1
+                        mov LIT_fred, arg2
+                        mov LIT_2, arg3
+                        call word_mov_function
 .endif
-    mov LIT_xtest, arg1
-    mov LIT_fred, arg2
-    mov LIT_2, arg3
-    call word_mov_function
+    LITERAL 1023
+    mov LIT_1023, arg1
+    LITERAL 121
+    mov LIT_121, arg2
+    call divide_function
 halt:    HALT
 .if 0
                         LITERAL before_neg
@@ -94,22 +99,40 @@ movi_function:
 #arg3 contains number of words to more
 word_mov_function:
     VAR myret
-.set src, arg1
-.set dst, arg2
-.set cnt, arg3
     LITERAL 4
 
     mov __return, myret #preserve my return address
 word_loop:
-    zjmp cnt, word_return
+    zjmp arg3, word_return
     call movi_function   #move next word
 wla:
-    add LIT_4, src
+    add LIT_4, arg1
 wlb:
-    add LIT_4, dst
+    add LIT_4, arg2
 wls:
-    dec cnt
+    dec arg3
     jmp word_loop
 word_return:
     return myret
+
+#call with arg1 is dividend, arg2 is divisor, arg3 is result
+#return arg1 is remainder arg2 is divisor arg3 is result/quotient
+divide_function:
+    clr arg3            #clear result
+    mov arg2, fred #preserve divisor
+divide_loop:
+    jeq arg2, arg1, div_eq #not done
+    jge arg2, arg1, div_done
+div_eq:
+    mov arg1, scratch2
+    #dividend = dividend - divisor
+tsub:
+#    subres arg1, arg2, res #arg2= dst-src and res= src-dst
+tsub2:
+    subres  scratch2, arg2, arg1  #subtract divisor from dividend
+    mov fred, arg2          #restore divisor
+    inc arg3        #incr quotient
+    jmp divide_loop
+div_done:
+    return
 last_addr:
