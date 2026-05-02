@@ -6,11 +6,9 @@ MEMORY {
 }
 SECTIONS {
     .text : { *(.text) } > ROM
-    . = ALIGN(16);
-    .rodata : {
+    .rodata ALIGN(16) : {
                     *(.rodata) } > ROM
-    .data : { . = ALIGN(32);
-            *(.data)
+    .data ALIGN(32) : { *(.data)
             *(.bss) *(COMMON) } > ROM
     /* .bss : { *(.bss) *(COMMON) } > RAM */
 }

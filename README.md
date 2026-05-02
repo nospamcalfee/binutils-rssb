@@ -60,9 +60,11 @@ The high n-32 bits of mem is subtracted from the low n-32 bits of
 acc. Only n-32 bits in mem and acc are the updated by the subtract.
 The other n bits are unchanged.
 
+```
 acc,mem <- mem-acc. 32 bits if on 32 bit aligned address
 acc,mem <- mem-(acc<<bits) if unaligned.
 borrow is set on the 32-n bits actually acted on in the subtract.
+```
 
 so  if n==8 24=32-8 bits are affected in both mem=MMM..x ACC=x..AAA,
 M,A are replaced by the result of the subtract where M is the
@@ -94,15 +96,15 @@ Ha, that is a job that may work! Look at the README files in the base directory.
 In a terminal go to the simulator directory. Assemble, link and prep the test a_rssb_test.s assembly language program using ./assm It is a batch file using several of the rssb custom Binutils tools.
 
 Then build the simulator:
-...
+```
 gcc -g -O0 urisc.c sym_lookup.c -o uriskit
-...
+```
 
 The simulator can be debugged by gdb on an x86 Linux box using
 
-...
+```
 gdb --args ../simulator/uriskit ../build/a.input
-...
+```
 
 The simulated rssb cpu code cannot be debugged with gdb, you'll have to look at terminal output.
 
